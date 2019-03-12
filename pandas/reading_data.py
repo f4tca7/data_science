@@ -130,6 +130,6 @@ monthly_max = df_clean[['dew_point_faren', 'dry_bulb_faren']].resample('M').max(
 # Generate a histogram with bins=8, alpha=0.5, subplots=True
 monthly_max.plot(kind='hist', bins=8, alpha=0.5, subplots=True)
 
-# Show the plot 1
+# Show the plot
 plt.show()
 
