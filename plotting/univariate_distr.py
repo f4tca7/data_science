@@ -29,6 +29,7 @@ sns.swarmplot(y='cyl', x='hp', data=auto, hue='origin', orient='h')
 plt.show()
 
 # ------------ violin regression ------------ #
+
 # Generate a violin plot of 'hp' grouped horizontally by 'cyl'
 plt.subplot(2,1,1)
 sns.violinplot(x='cyl', y='hp', data=auto)
