@@ -80,3 +80,5 @@ p = np.sum(perm_replicates >= empirical_diff_means) / len(perm_replicates)
 
 # Print the result
 print('p-value =', p)
+
+# ------------ One-sample bootstrap hypothesis test ------------ #
