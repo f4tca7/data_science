@@ -4,8 +4,6 @@ from sklearn.preprocessing import Imputer
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report 
-
 
 
 votes = pd.read_csv('../datasets/house-votes-84.csv')
