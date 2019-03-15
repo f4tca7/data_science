@@ -146,3 +146,5 @@ logreg_cv.fit(X_train, y_train)
 # Print the optimal parameters and best score
 print("Tuned Logistic Regression Parameter: {}".format(logreg_cv.best_params_))
 print("Tuned Logistic Regression Accuracy: {}".format(logreg_cv.best_score_))
+
+
