@@ -3,16 +3,16 @@ import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-from sklearn.preprocessing import Normalizer
-from scipy.cluster.hierarchy import linkage, dendrogram
-from sklearn.preprocessing import normalize
-from sklearn.preprocessing import Imputer
-from scipy.cluster.hierarchy import fcluster
+from sklearn.preprocessing import Normalizer, MaxAbsScaler, normalize, Imputer, StandardScaler
+from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from sklearn.manifold import TSNE
 from scipy.stats import pearsonr
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, NMF
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
+from scipy.sparse import csr_matrix
+
 
 df_grain = pd.read_csv('../datasets/seeds.csv')
 samples_grain = df_grain.iloc[:,:7].values
@@ -51,6 +51,21 @@ esc_votes = df_esc.iloc[:, :].values
 
 df_seeds_w_l = pd.read_csv('../datasets/seeds-width-vs-length.csv')
 seeds_w_l_samples = df_seeds_w_l.values
+
+df_artists = pd.read_csv('../datasets/artists/artists.csv', header=None)
+df_scrobbler = pd.read_csv('../datasets/artists/scrobbler-small-sample.csv')
+#df_scrobbler['artist'] = df_scrobbler.loc[:, 'artist_offset'].apply(lambda x : df_artists.iloc[x])
+#df_scrobbler= df_scrobbler.drop('artist_offset', axis=1)
+df_scrobbler = df_scrobbler.pivot(index='artist_offset', columns='user_offset', values='playcount')
+df_scrobbler = df_scrobbler.fillna(0)
+
+
+def show_as_image(sample):
+    bitmap = sample.reshape((13, 8))
+    plt.figure()
+    plt.imshow(bitmap, cmap='gray', interpolation='nearest')
+    plt.colorbar()
+    plt.show()
 
 ##### Compare intertia for different ks
 
@@ -281,6 +296,162 @@ def fish_pca(samples):
     plt.xticks(features)
     plt.show()      
 
+    ##### Dimension reduction
+    scaled_samples = scaler.fit_transform(samples)
+
+    # Create a PCA model with 2 components: pca
+    pca = PCA(n_components=2)
+
+    # Fit the PCA instance to the scaled samples
+    pca.fit(scaled_samples)
+
+    # Transform the scaled samples: pca_features
+    pca_features = pca.transform(scaled_samples)
+
+    # Print the shape of pca_features
+    print(pca_features.shape)
+
+##### Word frequency
+def word_freq():
+    documents = ['cats say meow', 'dogs say woof', 'dogs chase cats']
+    # Create a TfidfVectorizer: tfidf
+    tfidf = TfidfVectorizer() 
+
+    # Apply fit_transform to document: csr_mat
+    csr_mat = tfidf.fit_transform(documents)
+
+    # Print result of toarray() method
+    print(csr_mat.toarray())
+
+    # Get the words: words
+    words = tfidf.get_feature_names()
+
+    # Print words
+    print(words)
+    
+def wiki_cluster():
+    df = pd.read_csv('../datasets/wikipedia/wikipedia-vectors.csv', index_col=0)
+    articles = csr_matrix(df.transpose())
+    titles = list(df.columns)
+    # Create a TruncatedSVD instance: svd
+    svd = TruncatedSVD(n_components=50)
+
+    # Create a KMeans instance: kmeans
+    kmeans = KMeans(n_clusters=6)
+
+    # Create a pipeline: pipeline
+    pipeline = make_pipeline(svd, kmeans)
+    # Fit the pipeline to articles
+    pipeline.fit(articles)
+
+    # Calculate the cluster labels: labels
+    labels = pipeline.predict(articles)
+
+    # Create a DataFrame aligning labels and titles: df
+    df = pd.DataFrame({'label': labels, 'article': titles})
+
+    # Display df sorted by cluster label
+    print(df.sort_values('label'))
+
+def wiki_nmf():
+    df = pd.read_csv('../datasets/wikipedia/wikipedia-vectors.csv', index_col=0)
+    articles = csr_matrix(df.transpose())
+    titles = list(df.columns)    
+    # Create an NMF instance: model
+    model = NMF(n_components=6)
+
+    # Fit the model to articles
+    model.fit(articles)
+
+    # Transform the articles: nmf_features
+    nmf_features = model.transform(articles)
+
+    # Print the NMF features
+    print(nmf_features)   
+    # Create a pandas DataFrame: df
+    df = pd.DataFrame(data=nmf_features, index=titles)
+
+    # Print the row for 'Anne Hathaway'
+    print(df.loc['Anne Hathaway'])
+
+    # Print the row for 'Denzel Washington'
+    print(df.loc['Denzel Washington'])
+
+    words_df = pd.read_csv('../datasets/wikipedia/wikipedia-vocabulary-utf8.txt', header=None)
+
+    words = words_df.values.reshape(-1)
+    print(words_df.head())
+    # Create a DataFrame: components_df
+    components_df = pd.DataFrame(model.components_, columns=words)
+    
+    # Print the shape of the DataFrame
+    print(components_df.shape)
+
+    # Select row 3: component
+    component = components_df.iloc[3,:]
+
+    # Print result of nlargest
+    print(component.nlargest())
+
+def wiki_nmf_similarity():
+    df = pd.read_csv('../datasets/wikipedia/wikipedia-vectors.csv', index_col=0)
+    articles = csr_matrix(df.transpose())
+    titles = list(df.columns)    
+    words_df = pd.read_csv('../datasets/wikipedia/wikipedia-vocabulary-utf8.txt', header=None)
+    # Create an NMF instance: model
+    model = NMF(n_components=6)
+
+    # Fit the model to articles
+    model.fit(articles)
+
+    # Transform the articles: nmf_features
+    nmf_features = model.transform(articles)    
+    # Normalize the NMF features: norm_features
+    norm_features = normalize(nmf_features)
+
+    # Create a DataFrame: df
+    df = pd.DataFrame(norm_features, index=titles)
+
+    # Select the row corresponding to 'Cristiano Ronaldo': article
+    article = df.loc['Cristiano Ronaldo']
+
+    # Compute the dot products: similarities
+    similarities = df.dot(article)
+
+    # Display those with the largest cosine similarity
+    print(similarities.nlargest())
+
+def artist_recommendation(data, names):
+    print(data.head())
+    artist_names = names.values.reshape(-1)
+    csr = csr_matrix(data.transpose())
+    print(csr.todense())
+    # Create a MaxAbsScaler: scaler
+    scaler = MaxAbsScaler()
+
+    # Create an NMF model: nmf
+    nmf = NMF(n_components=20)
+
+    # Create a Normalizer: normalizer
+    normalizer = Normalizer()
+
+    # Create a pipeline: pipeline
+    pipeline = make_pipeline(scaler, nmf, normalizer)
+
+    # Apply fit_transform to artists: norm_features
+    norm_features = pipeline.fit_transform(data)    
+    # Create a DataFrame: df
+    df = pd.DataFrame(norm_features, index=artist_names)
+
+    # Select row of 'Bruce Springsteen': artist
+    artist = df.loc['2Pac']
+
+    # Compute cosine similarities: similarities
+    similarities = df.dot(artist)
+
+    # Display those with highest cosine similarity
+    print(similarities.nlargest())
+
 # explore_inertia(samples_grain)
 # scale_fit_crosstab(samples_fish, species_fish)
 # clustering_stock(movements, companies)
@@ -292,3 +463,7 @@ def fish_pca(samples):
 # stock_TSNE(movements, companies)
 # grain_pca(seeds_w_l_samples)
 # fish_pca(samples_fish)
+# wiki_cluster()
+# wiki_nmf()
+# wiki_nmf_similarity()
+artist_recommendation(df_scrobbler, df_artists)
