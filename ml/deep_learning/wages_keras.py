@@ -1,5 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+
 import keras
 from keras.layers import Dense
 from keras.models import Sequential
