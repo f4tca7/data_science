@@ -8,9 +8,8 @@ from sklearn.preprocessing import Normalizer, MaxAbsScaler, normalize, Imputer, 
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from sklearn.manifold import TSNE
 from scipy.stats import pearsonr
-from sklearn.decomposition import PCA, NMF
+from sklearn.decomposition import PCA, NMF, TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
 from scipy.sparse import csr_matrix
 
 
