@@ -204,7 +204,8 @@ def simple_pipeline(df, holdout):
     print("\nAccuracy on budget dataset: ", accuracy)
     print(classification_report(y_test, y_pred)) 
 
-df = pd.read_csv('../datasets/school_budgets/TrainingData_Small_2.csv', index_col=0)
+df = pd.read_csv('../datasets/school_budgets/TrainingData.csv', index_col=0)
 holdout = pd.read_csv('../datasets/school_budgets/TestData.csv', index_col=0)
 #simple_log_reg(df, holdout)
+
 simple_pipeline(df, holdout)
