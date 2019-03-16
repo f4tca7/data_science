@@ -48,6 +48,8 @@ model_1.add(Dense(100, activation='relu', input_shape = input_shape))
 model_1.add(Dense(100, activation='relu'))
 model_1.add(Dense(100, activation='relu'))
 model_1.add(Dense(100, activation='relu'))
+model_1.add(Dense(100, activation='relu'))
+model_1.add(Dense(100, activation='relu'))
 model_1.add(Dense(2, activation='softmax'))
 
 model_1.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
