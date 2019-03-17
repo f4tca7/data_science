@@ -1,0 +1,297 @@
+{
+	"copyright": "Copyright (c) 2019 The New York Times Company. All Rights Reserved.",
+	"response": {
+		"meta": {
+			"hits": 6977
+		},
+		"docs": [{
+				"web_url": "https://www.nytimes.com/2019/01/02/obituaries/daryl-dragon-dead.html",
+				"snippet": "He and his wife, Toni Tennille, were one of the most successful hit-making combinations of the 1970s. Their \u201cLove Will Keep Us Together\u201d went to No. 1.",
+				"lead_paragraph": "He and his wife, Toni Tennille, were one of the most successful hit-making combinations of the 1970s. Their \u201cLove Will Keep Us Together\u201d went to No. 1.",
+				"print_page": "10",
+				"blog": [],
+				"source": "The New York Times",
+				"multimedia": [{
+						"rank": 0,
+						"subtype": "xlarge",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/obituaries/03DRAGON1-print/merlin_148690920_b809ab8a-e519-4e75-8770-9d43fe082f7c-articleLarge.jpg",
+						"height": 446,
+						"width": 600,
+						"legacy": {
+							"xlarge": "images/2019/01/03/obituaries/03DRAGON1-print/merlin_148690920_b809ab8a-e519-4e75-8770-9d43fe082f7c-articleLarge.jpg",
+							"xlargewidth": 600,
+							"xlargeheight": 446
+						},
+						"subType": "xlarge",
+						"crop_name": "articleLarge"
+					}, {
+						"rank": 0,
+						"subtype": "thumbnail",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/obituaries/03DRAGON1-print/03DRAGON1-thumbStandard.jpg",
+						"height": 75,
+						"width": 75,
+						"legacy": {
+							"thumbnail": "images/2019/01/03/obituaries/03DRAGON1-print/03DRAGON1-thumbStandard.jpg",
+							"thumbnailwidth": 75,
+							"thumbnailheight": 75
+						},
+						"subType": "thumbnail",
+						"crop_name": "thumbStandard"
+					}, {
+						"rank": 0,
+						"subtype": "jumbo",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/obituaries/03DRAGON1-print/merlin_148690920_b809ab8a-e519-4e75-8770-9d43fe082f7c-jumbo.jpg",
+						"height": 762,
+						"width": 1024,
+						"legacy": [],
+						"subType": "jumbo",
+						"crop_name": "jumbo"
+					}, {
+						"rank": 0,
+						"subtype": "superJumbo",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/obituaries/03DRAGON1-print/merlin_148690920_b809ab8a-e519-4e75-8770-9d43fe082f7c-superJumbo.jpg",
+						"height": 1524,
+						"width": 2048,
+						"legacy": [],
+						"subType": "superJumbo",
+						"crop_name": "superJumbo"
+					}, {
+						"rank": 0,
+						"subtype": "thumbLarge",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/obituaries/03DRAGON1-print/03DRAGON1-thumbLarge.jpg",
+						"height": 150,
+						"width": 150,
+						"legacy": [],
+						"subType": "thumbLarge",
+						"crop_name": "thumbLarge"
+					}
+				],
+				"headline": {
+					"main": "Daryl Dragon, of the Captain and Tennille Pop Duo, Dies at 76",
+					"kicker": null,
+					"content_kicker": null,
+					"print_headline": "Daryl Dragon, 76, of the Captain and Tennille Pop Duo",
+					"name": null,
+					"seo": null,
+					"sub": null
+				},
+				"keywords": [{
+						"name": "persons",
+						"value": "Dragon, Daryl (1942-2019)",
+						"rank": 1,
+						"major": "N"
+					}, {
+						"name": "subject",
+						"value": "Deaths (Obituaries)",
+						"rank": 2,
+						"major": "N"
+					}, {
+						"name": "subject",
+						"value": "Pop and Rock Music",
+						"rank": 3,
+						"major": "N"
+					}, {
+						"name": "persons",
+						"value": "Tennille, Toni",
+						"rank": 4,
+						"major": "N"
+					}, {
+						"name": "organizations",
+						"value": "Captain and Tennille (Music Group)",
+						"rank": 5,
+						"major": "N"
+					}, {
+						"name": "creative_works",
+						"value": "Love Will Keep Us Together (Song)",
+						"rank": 6,
+						"major": "N"
+					}, {
+						"name": "organizations",
+						"value": "Beach Boys",
+						"rank": 7,
+						"major": "N"
+					}
+				],
+				"pub_date": "2019-01-03T00:10:00+0000",
+				"document_type": "article",
+				"news_desk": "Obits",
+				"section_name": "Obituaries",
+				"byline": {
+					"original": "By NEIL GENZLINGER",
+					"person": [{
+							"firstname": "Neil",
+							"middlename": null,
+							"lastname": "GENZLINGER",
+							"qualifier": null,
+							"title": null,
+							"role": "reported",
+							"organization": "",
+							"rank": 1
+						}
+					],
+					"organization": null
+				},
+				"type_of_material": "Obituary (Obit)",
+				"_id": "5c2d52db3a125f5075c029ae",
+				"word_count": 660,
+				"score": 0,
+				"uri": "nyt://article/e906623b-18e3-537a-b6a1-8c033722f4ed"
+			}, {
+				"web_url": "https://www.nytimes.com/2019/01/02/world/europe/sweden-doula-childbirth.html",
+				"snippet": "In Sweden, midwives deliver babies. But doula culture interpreters act as bridges between midwives and immigrant women.",
+				"lead_paragraph": "In Sweden, midwives deliver babies. But doula culture interpreters act as bridges between midwives and immigrant women.",
+				"print_page": "6",
+				"blog": [],
+				"source": "The New York Times",
+				"multimedia": [{
+						"rank": 0,
+						"subtype": "xlarge",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/world/03doula-print/merlin_147710586_c60c4d9a-c668-4cbd-a9f1-a21f82d43083-articleLarge.jpg",
+						"height": 400,
+						"width": 600,
+						"legacy": {
+							"xlarge": "images/2019/01/03/world/03doula-print/merlin_147710586_c60c4d9a-c668-4cbd-a9f1-a21f82d43083-articleLarge.jpg",
+							"xlargewidth": 600,
+							"xlargeheight": 400
+						},
+						"subType": "xlarge",
+						"crop_name": "articleLarge"
+					}, {
+						"rank": 0,
+						"subtype": "thumbnail",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/world/03doula-print/xxdoula1-thumbStandard.jpg",
+						"height": 75,
+						"width": 75,
+						"legacy": {
+							"thumbnail": "images/2019/01/03/world/03doula-print/xxdoula1-thumbStandard.jpg",
+							"thumbnailwidth": 75,
+							"thumbnailheight": 75
+						},
+						"subType": "thumbnail",
+						"crop_name": "thumbStandard"
+					}, {
+						"rank": 0,
+						"subtype": "jumbo",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/world/03doula-print/merlin_147710586_c60c4d9a-c668-4cbd-a9f1-a21f82d43083-jumbo.jpg",
+						"height": 683,
+						"width": 1024,
+						"legacy": [],
+						"subType": "jumbo",
+						"crop_name": "jumbo"
+					}, {
+						"rank": 0,
+						"subtype": "superJumbo",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/world/03doula-print/merlin_147710586_c60c4d9a-c668-4cbd-a9f1-a21f82d43083-superJumbo.jpg",
+						"height": 1365,
+						"width": 2048,
+						"legacy": [],
+						"subType": "superJumbo",
+						"crop_name": "superJumbo"
+					}, {
+						"rank": 0,
+						"subtype": "thumbLarge",
+						"caption": null,
+						"credit": null,
+						"type": "image",
+						"url": "images/2019/01/03/world/03doula-print/xxdoula1-thumbLarge.jpg",
+						"height": 150,
+						"width": 150,
+						"legacy": [],
+						"subType": "thumbLarge",
+						"crop_name": "thumbLarge"
+					}
+				],
+				"headline": {
+					"main": "Where Doulas Calm Nerves and Bridge Cultures During Childbirth",
+					"kicker": null,
+					"content_kicker": null,
+					"print_headline": "In Sweden, Doulas  Calmly Bridge Cultures  During Childbirth",
+					"name": null,
+					"seo": null,
+					"sub": null
+				},
+				"keywords": [{
+						"name": "glocations",
+						"value": "Sweden",
+						"rank": 1,
+						"major": "N"
+					}, {
+						"name": "subject",
+						"value": "Midwives and Doulas",
+						"rank": 2,
+						"major": "N"
+					}, {
+						"name": "subject",
+						"value": "Immigration and Emigration",
+						"rank": 3,
+						"major": "N"
+					}, {
+						"name": "subject",
+						"value": "Foreign Workers",
+						"rank": 4,
+						"major": "N"
+					}, {
+						"name": "subject",
+						"value": "Translation and Interpreters",
+						"rank": 5,
+						"major": "N"
+					}, {
+						"name": "subject",
+						"value": "Hospitals",
+						"rank": 6,
+						"major": "N"
+					}
+				],
+				"pub_date": "2019-01-02T22:17:38+0000",
+				"document_type": "article",
+				"news_desk": "Foreign",
+				"section_name": "World",
+				"subsectoinName": "Europe",
+				"byline": {
+					"original": "By CHRISTINA ANDERSON",
+					"person": [{
+							"firstname": "Christina",
+							"middlename": null,
+							"lastname": "ANDERSON",
+							"qualifier": null,
+							"title": null,
+							"role": "reported",
+							"organization": "",
+							"rank": 1
+						}
+					],
+					"organization": null
+				},
+				"type_of_material": "News",
+				"_id": "5c2d38833a125f5075c02974",
+				"word_count": 1326,
+				"score": 0,
+				"uri": "nyt://article/894cf51d-449b-5f9c-8d15-a923e89a46a8"
+			}]}}
