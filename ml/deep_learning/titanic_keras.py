@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('../datasets/titanic_all_numeric.csv')
+df = pd.read_csv('../datasets/exercises/titanic_all_numeric.csv')
 predictors =  df.drop('survived', axis=1).as_matrix()
 
 # Convert the target to categorical: target
@@ -49,8 +49,6 @@ plt.plot(model_1_training.history['val_loss'], 'r', model_2_training.history['va
 plt.xlabel('Epochs')
 plt.ylabel('Validation score')
 plt.show()
-
-
 predictions = model_1.predict(predictors)
 predicted_prob_true = predictions[:,1]
 

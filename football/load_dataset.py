@@ -52,6 +52,7 @@ def load_football_data(from_season, to_season, division = 'D1'):
             c = pd.read_csv(io.StringIO(data.decode('ISO-8859-1')), parse_dates=True, error_bad_lines=False)
             c = c.dropna(how='all')
             c = c.iloc[:,:34]
+            c['season'] = curr_season
             if division_df.empty :
                 division_df = c
             else :
@@ -63,6 +64,9 @@ def load_football_data(from_season, to_season, division = 'D1'):
 from_season = 1993
 to_season = 2018
 
+division = 'D1'
+df = load_football_data(from_season, to_season, division)        
+write_football_data(df, from_season, to_season, division)
 division = 'D2'
 df = load_football_data(from_season, to_season, division)        
 write_football_data(df, from_season, to_season, division)
