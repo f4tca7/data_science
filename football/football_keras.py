@@ -1,26 +1,24 @@
-#       season  team_1  team_2  home  seed_diff  score_diff  score_1  score_2  \
-# 3430    2012    1907     100     0          1           1       58       57   
-# 3431    2012    1704     649     0         -8         -17       63       80   
-# 3432    2012    4291     649     0          2          12       82       70   
-# 3433    2012    7533     649     0        -11          -8       60       68   
-# 3434    2012   10813     649     0         -7          -5       70       75   
-
-#       won  
-# 3430    1  
-# 3431    0  
-# 3432    1  
-# 3433    0  
-# 3434    0
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import CountVectorizer
-from keras.layers import Input, Dense, Subtract, Embedding, Flatten
+from keras.layers import Input, Dense, Subtract, Embedding, Flatten, Concatenate
 from sklearn.model_selection import train_test_split
 from keras.models import Model
+from keras.utils import plot_model
+
+
+def plot_model_(model):
+    # Plot the model
+    plot_model(model, to_file='model.png')
+
+    # Display the image
+    data = plt.imread('model.png')
+    plt.imshow(data)
+    plt.show()
 
 vectorizer = CountVectorizer()
+
 
 df_div1 = pd.read_csv('../datasets/football/bundesliga_D1_1993_2018.csv', parse_dates=True)
 df_div1 = df_div1.dropna(how='all', axis=1)
@@ -29,22 +27,24 @@ df_subset = df_div1[['season', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR']]
 df_subset.columns = ['season', 'team_1', 'team_2', 'score_1', 'score_2', 'ftr']
 df_subset['won'] = df_subset.loc[:,'ftr'].apply(lambda x : 0 if (x == 'D') | (x == 'A') else 1)
 df_subset['score_diff'] = df_subset['score_2'] - df_subset['score_1']
+df_subset['home'] = 1 
+df_subset['team_1'] = df_subset['team_1'].replace('.','')
+df_subset['team_2'] = df_subset['team_2'].replace('.','')
 df_subset = df_subset.drop('ftr', axis=1)
-teams = np.unique(df_subset['team_1'])
+teams = np.unique(df_subset['team_2'])
 team_nums = np.arange(0, teams.shape[0], 1)
 teams_dict = dict(zip(teams, team_nums))
 
 df_subset['team_1'] = df_subset['team_1'].apply(lambda x : teams_dict[x])
 df_subset['team_2'] = df_subset['team_2'].apply(lambda x : teams_dict[x])
 
-
 y = df_subset['won'].values
-X = df_subset[['team_1', 'team_2']].values
+X = df_subset[['team_1', 'team_2', 'home']].values
 # X = df_subset['score_diff'].values
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
-print(X_train[:,1])
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=41)
 
-n_teams = np.unique(df_subset['team_1']).shape[0]
+
+n_teams = np.unique(df_subset['team_2']).shape[0]
 
 
 team_lookup = Embedding(input_dim=n_teams,
@@ -68,27 +68,33 @@ team_in_1 = Input((1,), name="Team-1-In")
 
 # Separate input layer for team 2
 team_in_2 = Input((1,), name="Team-2-In")
-
+home_in = Input(shape=(1,), name='Home-In')
 # Lookup team 1 in the team strength model
 team_1_strength = team_strength_model(team_in_1)
 
 # Lookup team 2 in the team strength model
 team_2_strength = team_strength_model(team_in_2)
 # Subtraction layer from previous exercise
-score_diff = Subtract()([team_1_strength, team_2_strength])
+#score_diff = Subtract()([team_1_strength, team_2_strength])
+conca = Concatenate()([team_1_strength, team_2_strength, home_in])
 
+middle1 = Dense(1000, activation='relu')(conca)
+middle2 = Dense(50, activation='relu')(middle1)
+middle3 = Dense(50, activation='relu')(middle2)
+
+out1 = Dense(1)(middle3)
 # Create the model
-model = Model([team_in_1, team_in_2], score_diff)
+model = Model([team_in_1, team_in_2, home_in], out1)
 
 # Compile the model
 model.compile(optimizer='adam', loss='mean_absolute_error', metrics=['accuracy'])
 input_1 = df_subset['team_1']
 input_2 = df_subset['team_2']
-model_training = model.fit([X_train[:,0], X_train[:,1]],
+model_training = model.fit([X_train[:,0], X_train[:,1], X_train[:,2]],
           y_train,
-          epochs=40,
+          epochs=100,
           batch_size=2048,
-          validation_data=([X_test[:,0], X_test[:,1]], y_test),
+          validation_data=([X_test[:,0], X_test[:,1], X_test[:,2]], y_test),
           verbose=True)
 
 # Get team_1 from the tournament data
@@ -96,9 +102,11 @@ input_1 = X_test[:,0]
 
 # Get team_2 from the tournament data
 input_2 = X_test[:,1]
-
+input_3 = X_test[:,2]
 # Evaluate the model using these inputs
-model.evaluate([input_1, input_2], y_test)
+model.evaluate([input_1, input_2, input_3], y_test)
+
+# plot_model_(model)
 
 plt.plot(model_training.history['val_loss'], 'r', model_training.history['val_loss'], 'b')
 plt.xlabel('Epochs')
