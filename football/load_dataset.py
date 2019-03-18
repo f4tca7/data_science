@@ -63,6 +63,6 @@ def load_football_data(from_season, to_season, division = 'D1'):
 from_season = 1993
 to_season = 2018
 
-division = 'D1'
+division = 'D2'
 df = load_football_data(from_season, to_season, division)        
 write_football_data(df, from_season, to_season, division)
