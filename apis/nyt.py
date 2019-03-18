@@ -26,7 +26,7 @@ def json_to_df(data):
     return rows
 
 
-def load_from__archives_api(from_year, to_year, from_month, to_month):
+def load_from_archives_api(from_year, to_year, from_month, to_month):
     """
     Loads data from New York Times Archives API for the specified period.
     Returns one consolidated pandas dataframe with date index
@@ -83,7 +83,7 @@ to_y = 2019
 from_m = 12
 to_m = 1
 
-rows = load_from__archives_api(from_y, to_y, from_m, to_m)
+rows = load_from_archives_api(from_y, to_y, from_m, to_m)
 df = pd.DataFrame.from_records(rows, columns=COLUMNS, index=['date']) 
 print(df.head())
 print(df.tail())
