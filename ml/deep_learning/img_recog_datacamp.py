@@ -32,9 +32,11 @@ else:
 
 model = Sequential()
 model.add(Conv2D(5, kernel_size=3, activation='relu', input_shape=input_shape))
+model.add(Dropout(0.25))
 model.add(MaxPooling2D(pool_size=2))
-# model.add(Conv2D(2, kernel_size=3, activation='relu'))           
-# model.add(MaxPooling2D(pool_size=2))
+model.add(Conv2D(2, kernel_size=3, activation='relu'))           
+model.add(MaxPooling2D(pool_size=2))
+model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(10, activation='softmax'))
 
