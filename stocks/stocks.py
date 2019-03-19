@@ -3,6 +3,7 @@ import numpy as np
 import re
 import matplotlib.pyplot as plt
 import nltk
+import stocks_preprocessing
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import CountVectorizer  
@@ -25,122 +26,74 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.neighbors import KNeighborsClassifier
 
-stemmer = WordNetLemmatizer()
 
-# nyt_1 = pd.read_csv('../datasets/large_data/intermediate_nyt_archive_2010_1_2017_1.csv', parse_dates=True)
-# nyt_2 = pd.read_csv('../datasets/large_data/nyt_archive_2016_12_2019_2.csv', parse_dates=True)
-# nyt_full = pd.concat([nyt_1, nyt_2], sort=False).drop_duplicates().reset_index(drop=True)
-# nyt_full.to_csv('../datasets/large_data/' + 'nyt_archive_2010_12_2019_2.csv')
+def build_fit_model(full_df):
 
+    #X = full_df['headline_processed'].values
+    y = full_df['went_up'].values
 
+    print('Vectorize')
+    vectorizer = CountVectorizer(max_features=1500, min_df=5, max_df=0.7, stop_words=stopwords.words('english'), ngram_range=(1, 2))  
+    X = vectorizer.fit_transform(full_df['all_text_processed']).toarray()  
 
-#stocks = pd.read_csv('../datasets/stock_data/MSFT_2018_12_2019_1.csv', index_col='Date', parse_dates=True)
-stocks = pd.read_csv('../datasets/stock_data/MSFT_2010_1_2019_2.csv', index_col='Date', parse_dates=True)
-stocks = stocks.shift(periods=-1)
-stocks = stocks.dropna()
+    print('TfidfTransform')
+    tfidfconverter = TfidfTransformer()  
+    X = tfidfconverter.fit_transform(X).toarray()  
 
-# nyt_data = pd.read_csv('../datasets/large_data/nyt_archive_2018_12_2019_1.csv', index_col='date', parse_dates=True)
-# nyt_data = pd.read_csv('../datasets/large_data/nyt_archive_2016_12_2019_2.csv', index_col='date', parse_dates=True)
-nyt_data = pd.read_csv('../datasets/large_data/nyt_archive_2010_1_2019_2.csv', index_col='date', parse_dates=True)
+    print('train_test_split')
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=22)  
+    print('Train Shape: ' + str(X_train.shape))
+    print('Test Shape: ' + str(X_test.shape))
 
-stocks['went_up'] = (stocks['Close'] - stocks['Open']) / stocks['Open']
-stocks['went_up'] = stocks['went_up'].apply(lambda x: 1 if x > 0.005 else 0)
-#print(np.unique(stocks.loc[stocks['went_up'] == 1].index.values))
+    classifier = LogisticRegression()
+    #classifier = RandomForestClassifier(n_estimators=1000, random_state=0)  
 
+    #classifier = SVC(probability=True)
+    #classifier = KNeighborsClassifier(n_neighbors = 10)
 
-stocks = stocks.drop(['Open', 'High', 'Low', 'Adj Close', 'Volume', 'Close'], axis=1)
+    print('fit')
+    classifier.fit(X_train, y_train)  
 
+    print('predict')
+    y_pred = classifier.predict(X_test)  
 
-full_df = nyt_data.merge(stocks, left_index=True, right_index=True)
-num_days = np.unique(full_df.index.values)
+    #y_pred2 = model.predict(X_test)
 
+    print(confusion_matrix(y_test, y_pred))  
+    print(classification_report(y_test, y_pred))  
+    print(accuracy_score(y_test, y_pred))  
 
-full_df = full_df.dropna()
-print('Full DF shape: ' + str(full_df.shape))
-print('Days: ' + str(len(num_days)))
-print('Positive Days: ' + str(len(np.unique(full_df.loc[full_df['went_up'] == 1].index.values))))
+    y_pred_prob = classifier.predict_proba(X_test)[:,1]
+    # print(y_pred_prob)
+    # Generate ROC curve values: fpr, tpr, thresholds
+    fpr, tpr, tresholds = roc_curve(y_test, y_pred_prob)
 
-full_df = full_df.reset_index(drop=True)
-full_df['headline_processed'] = ' '
+    # Plot ROC curve
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.plot(fpr, tpr)
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve')
+    plt.show()
 
-# Remove all the special characters
-full_df['headline_processed'] = full_df['headline'].apply(lambda x : re.sub(r'\W', ' ', x))
-# # remove all single characters
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : re.sub(r'\s+[a-zA-Z]\s+', ' ', x))
+    advwords = vectorizer.get_feature_names()
+    advcoeffs = classifier.coef_.tolist()[0]
+    advcoeffdf = pd.DataFrame({'Words' : advwords, 
+                            'Coefficient' : advcoeffs})
+    advcoeffdf = advcoeffdf.sort_values(['Coefficient', 'Words'], ascending=[0, 1])
+    print(advcoeffdf.head(10))
+    # # Compute and print AUC score
+    # print("AUC: {}".format(roc_auc_score(y_test, y_pred_prob)))
 
-# Remove single characters from the start
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : re.sub(r'\^[a-zA-Z]\s+', ' ', x)) 
+    # # Compute cross-validated AUC scores: cv_auc
+    # cv_auc = cross_val_score(classifier, X, y, cv=5, scoring='roc_auc')
 
-# Substituting multiple spaces with single space
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : re.sub(r'\s+', ' ', x, flags=re.I))
+    # # Print list of AUC scores
+    # print("AUC scores computed using 5-fold cross-validation: {}".format(cv_auc))
 
-# Removing prefixed 'b'
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : re.sub(r'^b\s+', '', x))
+stocks_path = '../datasets/stock_data/MSFT_2010_1_2019_2.csv'
+nyt_path = '../datasets/large_data/nyt_archive_2010_1_2019_2.csv'
+# df = stocks_preprocessing.preprocess(stocks_path, nyt_path, save_preprocessed=True)
+df = pd.read_csv('../datasets/stock_data/preprocessed_nyt_stock.csv', parse_dates=True)
 
-# Converting to Lowercase
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : x.lower())
-
-# Lemmatization
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : x.split())
-
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : [stemmer.lemmatize(word) for word in x])
-full_df['headline_processed'] = full_df['headline_processed'].apply(lambda x : ' '.join(x))
-
-
-
-#X = full_df['headline_processed'].values
-y = full_df['went_up'].values
-
-print('Vectorize')
-vectorizer = CountVectorizer(max_features=1000, min_df=5, max_df=0.7, stop_words=stopwords.words('english'), ngram_range=(1, 2))  
-X = vectorizer.fit_transform(full_df['headline_processed']).toarray()  
-
-print('TfidfTransform')
-tfidfconverter = TfidfTransformer()  
-X = tfidfconverter.fit_transform(X).toarray()  
-
-print('train_test_split')
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=2)  
-print('Train Shape: ' + str(X_train.shape))
-print('Test Shape: ' + str(X_test.shape))
-
-classifier = LogisticRegression()
-#classifier = RandomForestClassifier(n_estimators=1000, random_state=0)  
-
-#classifier = SVC()
-#classifier = KNeighborsClassifier(n_neighbors = 5)
-
-print('fit')
-classifier.fit(X_train, y_train)  
-
-print('predict')
-y_pred = classifier.predict(X_test)  
-
-
-#y_pred2 = model.predict(X_test)
-
-print(confusion_matrix(y_test, y_pred))  
-print(classification_report(y_test, y_pred))  
-print(accuracy_score(y_test, y_pred))  
-
-y_pred_prob = classifier.predict_proba(X_test)[:,1]
-print(y_pred_prob)
-# Generate ROC curve values: fpr, tpr, thresholds
-fpr, tpr, tresholds = roc_curve(y_test, y_pred_prob)
-
-# Plot ROC curve
-plt.plot([0, 1], [0, 1], 'k--')
-plt.plot(fpr, tpr)
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('ROC Curve')
-plt.show()
-
-# # Compute and print AUC score
-# print("AUC: {}".format(roc_auc_score(y_test, y_pred_prob)))
-
-# # Compute cross-validated AUC scores: cv_auc
-# cv_auc = cross_val_score(classifier, X, y, cv=5, scoring='roc_auc')
-
-# # Print list of AUC scores
-# print("AUC scores computed using 5-fold cross-validation: {}".format(cv_auc))
+build_fit_model(df)

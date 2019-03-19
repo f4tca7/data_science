@@ -99,10 +99,10 @@ def load_from_archives_api(from_year, to_year, from_month, to_month):
 
     return all_rows
 
-from_y = 2016
-to_y = 2019
-from_m = 12
-to_m = 2
+from_y = 2015
+to_y = 2016
+from_m = 1
+to_m = 1
 
 rows = load_from_archives_api(from_y, to_y, from_m, to_m)
 df = pd.DataFrame.from_records(rows, columns=COLUMNS, index=['date']) 
