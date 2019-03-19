@@ -33,7 +33,7 @@ def build_fit_model(full_df):
     y = full_df['went_up'].values
 
     print('Vectorize')
-    vectorizer = CountVectorizer(max_features=1500, min_df=5, max_df=0.7, stop_words=stopwords.words('english'), ngram_range=(1, 2))  
+    vectorizer = CountVectorizer(max_features=2500, min_df=5, max_df=0.7, stop_words=stopwords.words('english'), ngram_range=(1, 2))  
     X = vectorizer.fit_transform(full_df['all_text_processed']).toarray()  
 
     print('TfidfTransform')
@@ -41,7 +41,7 @@ def build_fit_model(full_df):
     X = tfidfconverter.fit_transform(X).toarray()  
 
     print('train_test_split')
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=22)  
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=12)  
     print('Train Shape: ' + str(X_train.shape))
     print('Test Shape: ' + str(X_test.shape))
 
@@ -91,9 +91,9 @@ def build_fit_model(full_df):
     # # Print list of AUC scores
     # print("AUC scores computed using 5-fold cross-validation: {}".format(cv_auc))
 
-stocks_path = '../datasets/stock_data/MSFT_2010_1_2019_2.csv'
+stocks_path = '../datasets/stock_data/GS_2010_01_2019_3.csv'
 nyt_path = '../datasets/large_data/nyt_archive_2010_1_2019_2.csv'
-# df = stocks_preprocessing.preprocess(stocks_path, nyt_path, save_preprocessed=True)
+#df = stocks_preprocessing.preprocess(stocks_path, nyt_path, save_preprocessed=True)
 df = pd.read_csv('../datasets/stock_data/preprocessed_nyt_stock.csv', parse_dates=True)
 
 build_fit_model(df)

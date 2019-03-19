@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-
+MSFT_KEYOWRDS =  "microsoft|msft|nadella|gates|windows|cloud|azure|productivity"
+GS_KEYWORDS = "goldman|sachs|bank|investment|speculation|security|banking|currrency|commoditiy|lend|invest|bubble"
 def combine_nyt_data(filename_1, filename_2, relative_path, from_y, from_m, to_y, to_m):    
     nyt_data_1 = pd.read_csv(relative_path + filename_1, index_col='date', parse_dates=True)
     nyt_data_2 = pd.read_csv(relative_path + filename_2, index_col='date', parse_dates=True)
@@ -82,7 +83,7 @@ def preprocess(path_stocks, path_nyt, save_preprocessed):
 
     full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : [stemmer.lemmatize(word) for word in x])
     full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : ' '.join(x))
-    filter_str = "microsoft|msft|nadella|gates|windows|cloud|azure|productivity"
+    filter_str = GS_KEYWORDS
     print('Filtering rows for ' + filter_str)    
     full_df = full_df[full_df['all_text_processed'].str.contains(filter_str)]
     print(full_df.head())
