@@ -3,8 +3,13 @@ import numpy as np
 import re
 import matplotlib.pyplot as plt
 import nltk
+import gzip
+import gensim 
+import logging
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
 MSFT_KEYOWRDS =  "microsoft|msft|nadella|gates|windows|cloud|azure|productivity"
 GS_KEYWORDS = "goldman|sachs|bank|investment|speculation|security|banking|currrency|commoditiy|lend|invest|bubble"
 def combine_nyt_data(filename_1, filename_2, relative_path, from_y, from_m, to_y, to_m):    
@@ -66,42 +71,47 @@ def preprocess(path_stocks, path_nyt, save_preprocessed=False):
     full_df['all_text'] = combine_text_columns(full_df, ['went_up', 'date'])
     full_df = full_df.drop(['headline', 'snippet', 'keywords'], axis=1)
 
-    print('Combine rows for same date')
-    full_df['all_text'] = full_df.groupby(['date', 'went_up'],as_index=False)['all_text'].transform(lambda x: ' '.join(x))
-    full_df[['date','went_up','all_text']].drop_duplicates(inplace = True)
-    full_df.reset_index(inplace = True)
+
 
     print('Normalizing Text')
     # Remove all the special characters
-    full_df['all_text_processed'] = full_df['all_text'].apply(lambda x : re.sub(r'\W', ' ', x))
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : re.sub(r'\W', ' ', x))
     # # remove all single characters
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : re.sub(r'\s+[a-zA-Z]\s+', ' ', x))
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : re.sub(r'\s+[a-zA-Z]\s+', ' ', x))
 
     # Remove single characters from the start
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : re.sub(r'\^[a-zA-Z]\s+', ' ', x)) 
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : re.sub(r'\^[a-zA-Z]\s+', ' ', x)) 
 
     # Substituting multiple spaces with single space
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : re.sub(r'\s+', ' ', x, flags=re.I))
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : re.sub(r'\s+', ' ', x, flags=re.I))
 
     # Removing prefixed 'b'
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : re.sub(r'^b\s+', '', x))
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : re.sub(r'^b\s+', '', x))
 
     # Converting to Lowercase
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : x.lower())
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : x.lower())
 
     # Lemmatization
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : x.split())
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : x.split())
 
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : [stemmer.lemmatize(word) for word in x])
-    full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : ' '.join(x))
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : [stemmer.lemmatize(word) for word in x])
+    full_df['all_text'] = full_df['all_text'].apply(lambda x : ' '.join(x))
+
+    print('Combine rows for same date')
+    full_df['all_text'] = full_df.groupby(['date', 'went_up'],as_index=False)['all_text'].transform(lambda x: ' '.join(x))
+    #full_df = full_df.drop(['index'], axis=1)
+    full_df = full_df[['date','went_up','all_text']].drop_duplicates()
+    #full_df.drop_duplicates(inplace = True)
+    full_df = full_df.reset_index()
+
     filter_str = GS_KEYWORDS
-    print('Filtering rows for ' + filter_str)    
-    full_df = full_df[full_df['all_text_processed'].str.contains(filter_str)]
+    #print('Filtering rows for ' + filter_str)    
+    #full_df = full_df[full_df['all_text_processed'].str.contains(filter_str)]
     print(full_df.head())
     print(full_df.shape)
 
     if save_preprocessed == True :
-        rel_path = '../datasets/stock_data/'
+        rel_path = '../datasets/large_data/'
         filename = 'preprocessed_nyt_stock.csv'
         full_path = rel_path + filename
         full_df.to_csv(full_path)        
@@ -109,10 +119,35 @@ def preprocess(path_stocks, path_nyt, save_preprocessed=False):
 
     return full_df
 
+def prep_vw_data(df):
+    for line in df['all_text'].values: 
+        
+        #if (i%100==0):
+        #    logging.info ("read {0} lines".format (i))
+        # do some pre-processing and return a list of words for each review text
+        yield gensim.utils.simple_preprocess(line)    
+
+def train_vw(df):
+
+    documents = list(prep_vw_data(df))
+    logging.info ("Done reading data file")
+    model = gensim.models.Word2Vec(documents, size=150, window=10, min_count=2, workers=10)
+    model.train(documents, total_examples=len(documents), epochs=10)
+    model.save('v2w.model')
+
+def load_vw():
+    model = gensim.models.Word2Vec.load('v2w.model')
+    w1 = "goldman"
+    print(model.wv.most_similar(positive=w1,topn=100))
+
 name1 = 'nyt_archive_2010_1_2016_1.csv'
 name2 = 'nyt_archive_2016_1_2019_2.csv'
 rel_path = '../datasets/large_data/'
 #combine_nyt_data(name1, name2, rel_path, 2010, 1, 2019, 2)
 stocks_path = '../datasets/stock_data/MSFT_2016_12_2019_2.csv'
 nyt_path = '../datasets/large_data/nyt_archive_2016_1_2019_2.csv'
-df = preprocess(stocks_path, nyt_path)    
+#df = preprocess(stocks_path, nyt_path, save_preprocessed=True)    
+#df = pd.read_csv('../datasets/large_data/preprocessed_nyt_stock.csv', parse_dates=True)
+#print(df.head())
+#train_vw(df)
+load_vw()

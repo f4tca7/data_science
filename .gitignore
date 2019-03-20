@@ -2,3 +2,4 @@
 /datasets/large_data
 /apis/secrets.py
 __pycache__/
+*.model
