@@ -8,15 +8,16 @@ import gensim
 import logging
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-<<<<<<< HEAD
-MSFT_KEYOWRDS =  "microsoft|msft|nadella|gates|windows|cloud|azure|productivity|technology|internet|bubble|tech"
-=======
+
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 MSFT_KEYOWRDS =  "microsoft|msft|nadella|gates|windows|cloud|azure|productivity"
->>>>>>> 1d337fec96f5de31e76e03cf6120227dd2839a60
 GS_KEYWORDS = "goldman|sachs|bank|investment|speculation|security|banking|currrency|commoditiy|lend|invest|bubble"
+
 def combine_nyt_data(filename_1, filename_2, relative_path, from_y, from_m, to_y, to_m):    
+    """
+    Utility function to combine two dataframes from the NYT API 
+    """
     nyt_data_1 = pd.read_csv(relative_path + filename_1, index_col='date', parse_dates=True)
     nyt_data_2 = pd.read_csv(relative_path + filename_2, index_col='date', parse_dates=True)
     nyt_data = pd.concat([nyt_data_1, nyt_data_2], sort=False).drop_duplicates()
@@ -25,22 +26,22 @@ def combine_nyt_data(filename_1, filename_2, relative_path, from_y, from_m, to_y
     nyt_data.to_csv(full_path)
     print('Created ' + full_path)
 
-# Define combine_text_columns()
 def combine_text_columns(data_frame, to_drop):
-    """ converts all text rows of data_frame to single vector """
+    """ 
+    Helper function to convert all text rows of data_frame to single vector 
+    """
     
-    # Drop non-text columns that are in the df
     to_drop = set(to_drop) & set(data_frame.columns.tolist())
-    text_data = data_frame.drop(to_drop, axis=1)
-    
-    # Replace nans with blanks
+    text_data = data_frame.drop(to_drop, axis=1)    
     text_data.fillna(' ', inplace=True)
 
-    # Join all text items in a row that have a space in between
     return text_data.apply(lambda x: " ".join(x), axis=1)
 
 
 def preprocess(path_stocks, path_nyt, save_preprocessed=False):
+    """
+    Main preprocessing function
+    """
     stemmer = WordNetLemmatizer()
 
     stocks = pd.read_csv(path_stocks, parse_dates=True, index_col='Date')
@@ -49,16 +50,10 @@ def preprocess(path_stocks, path_nyt, save_preprocessed=False):
     stocks.reset_index(inplace = True)
     stocks.loc[:,'Date'] = pd.to_datetime(stocks.loc[:,'Date'])
 
-<<<<<<< HEAD
-    nyt_data = pd.read_csv(path_nyt, index_col='date', parse_dates=True)
-    print(nyt_data.head())
-    print(stocks.head())
-=======
     nyt_data = pd.read_csv(path_nyt, parse_dates=True)
 
     nyt_data.loc[:,'date'] = pd.to_datetime(nyt_data.loc[:,'date'])
 
->>>>>>> 1d337fec96f5de31e76e03cf6120227dd2839a60
     stocks['went_up'] = (stocks['Close'] - stocks['Open']) / stocks['Open']
     stocks['went_up'] = stocks['went_up'].apply(lambda x: 1 if x > 0.005 else 0)
 
