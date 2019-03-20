@@ -30,23 +30,32 @@ def combine_text_columns(data_frame, to_drop):
     # Join all text items in a row that have a space in between
     return text_data.apply(lambda x: " ".join(x), axis=1)
 
-def preprocess(path_stocks, path_nyt, save_preprocessed):
+
+def preprocess(path_stocks, path_nyt, save_preprocessed=False):
     stemmer = WordNetLemmatizer()
 
-    stocks = pd.read_csv(path_stocks, index_col='Date', parse_dates=True)
+    stocks = pd.read_csv(path_stocks, parse_dates=True, index_col='Date')
     stocks = stocks.shift(periods=-1)
     stocks = stocks.dropna()
+    stocks.reset_index(inplace = True)
+    stocks.loc[:,'Date'] = pd.to_datetime(stocks.loc[:,'Date'])
 
-    nyt_data = pd.read_csv(path_nyt, index_col='date', parse_dates=True)
+    nyt_data = pd.read_csv(path_nyt, parse_dates=True)
+
+    nyt_data.loc[:,'date'] = pd.to_datetime(nyt_data.loc[:,'date'])
 
     stocks['went_up'] = (stocks['Close'] - stocks['Open']) / stocks['Open']
     stocks['went_up'] = stocks['went_up'].apply(lambda x: 1 if x > 0.005 else 0)
 
     stocks = stocks.drop(['Open', 'High', 'Low', 'Adj Close', 'Volume', 'Close'], axis=1)
-    full_df = nyt_data.merge(stocks, left_index=True, right_index=True)
+    stocks.columns = ['date', 'went_up']
+    
+    full_df = nyt_data.merge(stocks, on='date',suffixes=('','_y'))
+    #full_df = nyt_data.merge(stocks, left_index=True, right_index=True)
     num_days = np.unique(full_df.index.values)
-
-
+    print(full_df.head())
+    print(full_df.columns)
+ 
     full_df = full_df.dropna()
     print('Full DF shape: ' + str(full_df.shape))
     print('Days: ' + str(len(num_days)))
@@ -54,13 +63,15 @@ def preprocess(path_stocks, path_nyt, save_preprocessed):
 
     full_df = full_df.reset_index(drop=True)
     print('Combining text into one column')
-    full_df['all_text'] = combine_text_columns(full_df, ['went_up'])
+    full_df['all_text'] = combine_text_columns(full_df, ['went_up', 'date'])
     full_df = full_df.drop(['headline', 'snippet', 'keywords'], axis=1)
 
-    full_df['headline_processed'] = ' '
+    print('Combine rows for same date')
+    full_df['all_text'] = full_df.groupby(['date', 'went_up'],as_index=False)['all_text'].transform(lambda x: ' '.join(x))
+    full_df[['date','went_up','all_text']].drop_duplicates(inplace = True)
+    full_df.reset_index(inplace = True)
 
     print('Normalizing Text')
-
     # Remove all the special characters
     full_df['all_text_processed'] = full_df['all_text'].apply(lambda x : re.sub(r'\W', ' ', x))
     # # remove all single characters
@@ -102,6 +113,6 @@ name1 = 'nyt_archive_2010_1_2016_1.csv'
 name2 = 'nyt_archive_2016_1_2019_2.csv'
 rel_path = '../datasets/large_data/'
 #combine_nyt_data(name1, name2, rel_path, 2010, 1, 2019, 2)
-stocks_path = '../datasets/stock_data/MSFT_2010_1_2019_2.csv'
+stocks_path = '../datasets/stock_data/MSFT_2016_12_2019_2.csv'
 nyt_path = '../datasets/large_data/nyt_archive_2016_1_2019_2.csv'
-#df = preprocess(stocks_path, nyt_path)    
+df = preprocess(stocks_path, nyt_path)    
