@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-MSFT_KEYOWRDS =  "microsoft|msft|nadella|gates|windows|cloud|azure|productivity"
+MSFT_KEYOWRDS =  "microsoft|msft|nadella|gates|windows|cloud|azure|productivity|technology|internet|bubble|tech"
 GS_KEYWORDS = "goldman|sachs|bank|investment|speculation|security|banking|currrency|commoditiy|lend|invest|bubble"
 def combine_nyt_data(filename_1, filename_2, relative_path, from_y, from_m, to_y, to_m):    
     nyt_data_1 = pd.read_csv(relative_path + filename_1, index_col='date', parse_dates=True)
@@ -38,7 +38,8 @@ def preprocess(path_stocks, path_nyt, save_preprocessed):
     stocks = stocks.dropna()
 
     nyt_data = pd.read_csv(path_nyt, index_col='date', parse_dates=True)
-
+    print(nyt_data.head())
+    print(stocks.head())
     stocks['went_up'] = (stocks['Close'] - stocks['Open']) / stocks['Open']
     stocks['went_up'] = stocks['went_up'].apply(lambda x: 1 if x > 0.005 else 0)
 
@@ -48,6 +49,7 @@ def preprocess(path_stocks, path_nyt, save_preprocessed):
 
 
     full_df = full_df.dropna()
+    #full_df = full_df.drop('Unnamed: 0', axis=1)
     print('Full DF shape: ' + str(full_df.shape))
     print('Days: ' + str(len(num_days)))
     print('Positive Days: ' + str(len(np.unique(full_df.loc[full_df['went_up'] == 1].index.values))))
@@ -83,7 +85,7 @@ def preprocess(path_stocks, path_nyt, save_preprocessed):
 
     full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : [stemmer.lemmatize(word) for word in x])
     full_df['all_text_processed'] = full_df['all_text_processed'].apply(lambda x : ' '.join(x))
-    filter_str = GS_KEYWORDS
+    filter_str = MSFT_KEYOWRDS
     print('Filtering rows for ' + filter_str)    
     full_df = full_df[full_df['all_text_processed'].str.contains(filter_str)]
     print(full_df.head())
@@ -91,7 +93,7 @@ def preprocess(path_stocks, path_nyt, save_preprocessed):
 
     if save_preprocessed == True :
         rel_path = '../datasets/stock_data/'
-        filename = 'preprocessed_nyt_stock.csv'
+        filename = 'preprocessed_nyt_stock_MSFT.csv'
         full_path = rel_path + filename
         full_df.to_csv(full_path)        
         print('Created ' + full_path)

@@ -99,8 +99,8 @@ def load_from_archives_api(from_year, to_year, from_month, to_month):
 
     return all_rows
 
-from_y = 2015
-to_y = 2016
+from_y = 2000
+to_y = 2019
 from_m = 1
 to_m = 1
 
