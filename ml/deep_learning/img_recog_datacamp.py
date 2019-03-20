@@ -5,10 +5,11 @@ from keras.models import Sequential
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split 
 from sklearn.metrics import classification_report, confusion_matrix
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 import matplotlib.pyplot as plt
 from keras import datasets
 from keras import backend as K
+
 
 img_rows, img_cols = 28, 28
 fashion_mnist = keras.datasets.fashion_mnist
@@ -30,14 +31,31 @@ else:
 # quit()
 
 model = Sequential()
-model.add(Conv2D(10, kernel_size=10, activation='relu', input_shape=input_shape))
-model.add(Conv2D(10, kernel_size=3, activation='relu'))           
-model.add(MaxPooling2D(pool_size=(2, 2)))     
+model.add(Conv2D(5, kernel_size=3, activation='relu', input_shape=input_shape))
+model.add(Dropout(0.25))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Conv2D(2, kernel_size=3, activation='relu'))           
+model.add(MaxPooling2D(pool_size=2))
+model.add(Dropout(0.25))
 model.add(Flatten())
-model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.5))
 model.add(Dense(10, activation='softmax'))
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-model.fit(X_train, y_train, validation_split=.2, epochs=3)
-print(model.evaluate(X_test, y_test))
+checkpoint = ModelCheckpoint('weights.hdf5', monitor='val_loss', save_best_only=True)
+callbacks_list = [checkpoint]
+model.summary()
+training = model.fit(X_train, y_train, validation_split=.2, epochs=3, batch_size=10, callbacks=callbacks_list)
+print(model.evaluate(X_test, y_test, batch_size=10))
+model.load_weights('weights.hdf5')
+
+# Predict from the first three images in the test data
+model.predict(X_test[0:3])
+history = training.history
+
+# Plot the training loss 
+plt.plot(history['loss'])
+# Plot the validation loss
+plt.plot(history['val_loss'])
+
+# Show the figure
+plt.show()
