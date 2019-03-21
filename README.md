@@ -1,2 +1,2 @@
 # data_science
-Data science exercises, mostly based on DataCamp courses
+Data science exercises with Python, mostly based on DataCamp courses
