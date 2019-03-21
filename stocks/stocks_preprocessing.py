@@ -43,7 +43,8 @@ def preprocess(path_stocks, path_nyt, save_preprocessed=False):
     Main preprocessing function
     """
     stemmer = WordNetLemmatizer()
-
+    if 'Unnamed: 0' in nyt_data.columns:
+        nyt_data = nyt_data.drop('Unnamed: 0', axis=1)
     stocks = pd.read_csv(path_stocks, parse_dates=True, index_col='Date')
     stocks = stocks.shift(periods=-1)
     stocks = stocks.dropna()
@@ -139,11 +140,11 @@ def train_vw(df):
     logging.info ("Done reading data file")
     model = gensim.models.Word2Vec(documents, size=150, window=10, min_count=2, workers=10)
     model.train(documents, total_examples=len(documents), epochs=10)
-    model.save('v2w.model')
+    model.save('../datasets/large_data/v2w.model')
 
 def load_vw():
-    model = gensim.models.Word2Vec.load('v2w.model')
-    w1 = "goldman"
+    model = gensim.models.Word2Vec.load('../datasets/large_data/v2w.model')
+    w1 = "france"
     print(model.wv.most_similar(positive=w1,topn=100))
 
 name1 = 'nyt_archive_2010_1_2016_1.csv'
@@ -156,4 +157,4 @@ nyt_path = '../datasets/large_data/nyt_archive_2016_1_2019_2.csv'
 #df = pd.read_csv('../datasets/large_data/preprocessed_nyt_stock.csv', parse_dates=True)
 #print(df.head())
 #train_vw(df)
-load_vw()
+#load_vw()

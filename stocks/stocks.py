@@ -37,6 +37,7 @@ from keras import datasets
 from keras import backend as K
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+import preprocess_nyt_data
 
 plt.style.use('ggplot')
 
@@ -209,7 +210,14 @@ def build_fit_model(full_df):
 
 stocks_path = '../datasets/stock_data/MSFT_2000_1_2019_3.csv'
 nyt_path = '../datasets/large_data/nyt_archive_2000_1_2019_1.csv'
-df = stocks_preprocessing.preprocess(stocks_path, nyt_path, save_preprocessed=True)
-df = pd.read_csv('../datasets/stock_data/preprocessed_nyt_stock_MSFT.csv', parse_dates=True)
-build_fit_model(df)
-nn(df)
+nyt_preprod_path = '../datasets/large_data/nyt_preprocessed_2000_1_2019_1.csv'
+#nyt_data = pd.read_csv(nyt_path, parse_dates=True)
+#df = preprocess_nyt_data.preprocess(nyt_data, save_preprocessed=True, base_path='../datasets/large_data/', filename='nyt_preprocessed_2000_1_2019_1.csv')
+nyt_data = pd.read_csv(nyt_preprod_path, parse_dates=True)
+#stocks_preprocessing.train_vw(nyt_data)
+
+stocks_preprocessing.load_vw()
+# df = stocks_precprocessing.preprocess(stocks_path, nyt_path, save_preprocessed=True)
+# df = pd.read_csv('../datasets/stock_data/preprocessed_nyt_stock_MSFT.csv', parse_dates=True)
+# build_fit_model(df)
+# nn(df)
