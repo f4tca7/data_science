@@ -1,2 +1,2 @@
 # data_science
-Python snippets for reference
+Data science exercises, mostly based on DataCamp courses
